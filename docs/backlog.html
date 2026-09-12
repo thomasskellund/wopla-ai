@@ -1,0 +1,251 @@
+<title>Wopla AI Backlog</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #f6f7f5;
+    --surface: #ffffff;
+    --surface-2: #eef1ed;
+    --border: #dde1da;
+    --text: #1f241f;
+    --text-muted: #5c6459;
+    --accent: #3e7a34;
+    --accent-tint: #e8f0e4;
+    --warn: #a8690a;
+    --warn-tint: #f6ecdd;
+    --done: #8a9186;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141815;
+      --surface: #1b201c;
+      --surface-2: #212722;
+      --border: #2c332c;
+      --text: #e7eae5;
+      --text-muted: #9aa399;
+      --accent: #6fbe59;
+      --accent-tint: #223020;
+      --warn: #e0a83d;
+      --warn-tint: #302716;
+      --done: #6b746a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141815;
+    --surface: #1b201c;
+    --surface-2: #212722;
+    --border: #2c332c;
+    --text: #e7eae5;
+    --text-muted: #9aa399;
+    --accent: #6fbe59;
+    --accent-tint: #223020;
+    --warn: #e0a83d;
+    --warn-tint: #302716;
+    --done: #6b746a;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    line-height: 1.5;
+  }
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 6rem;
+  }
+  .masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .masthead .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .masthead h1 {
+    font-family: "Newsreader", Georgia, serif;
+    font-weight: 600;
+    font-size: 2.4rem;
+    line-height: 1.1;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .masthead p {
+    color: var(--text-muted);
+    max-width: 56ch;
+    margin: 0;
+  }
+  .masthead .meta {
+    display: flex;
+    gap: 1.25rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+  .masthead .meta b { color: var(--text); font-weight: 500; }
+
+  .section {
+    margin-top: 2.75rem;
+  }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.9rem;
+  }
+  .section-head h2 {
+    font-family: "Newsreader", Georgia, serif;
+    font-weight: 500;
+    font-size: 1.35rem;
+    margin: 0;
+  }
+  .section-head .count {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.05rem;
+    display: grid;
+    grid-template-columns: 1.4rem 1fr;
+    gap: 0.15rem 0.85rem;
+  }
+  .item .check {
+    grid-row: 1 / 3;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-top: 0.15rem;
+    border: 1.5px solid var(--border);
+    border-radius: 5px;
+    background: var(--surface);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    color: var(--surface);
+    font-size: 0.8rem;
+    flex: none;
+  }
+  .item .check:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .item.done .check { background: var(--accent); border-color: var(--accent); }
+  .item .title {
+    font-weight: 500;
+    font-size: 0.97rem;
+  }
+  .item.done .title, .item.done .rationale { color: var(--done); text-decoration: line-through; text-decoration-color: var(--border); }
+  .item .rationale {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    max-width: 62ch;
+  }
+  .item .tags {
+    grid-column: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+  .tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 5px;
+    background: var(--surface-2);
+    color: var(--text-muted);
+  }
+  .tag.warn { background: var(--warn-tint); color: var(--warn); }
+  .tag.accent { background: var(--accent-tint); color: var(--accent); }
+
+  .empty-note {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding: 1.5rem 0 0;
+    border-top: 1px dashed var(--border);
+    margin-top: 3rem;
+  }
+</style>
+
+<div class="page">
+  <div class="masthead">
+    <span class="eyebrow">Wopla AI &middot; rewrite backlog</span>
+    <h1>Follow-ups &amp; deferred work</h1>
+    <p>Things deliberately deferred while building the rewrite domain by domain — not forgotten, just out of order. Check one off once it's actually addressed in a migration or spec update.</p>
+    <div class="meta">
+      <span><b>4</b> open</span>
+      <span>Last logged <b>2026-09-12</b></span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2>Domain 2 — Chat</h2>
+      <span class="count">1 item</span>
+    </div>
+    <div class="items">
+      <div class="item" data-id="chat-order-visibility">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Gate company&ndash;vendor room visibility on active/future orders</div>
+        <div class="rationale">
+          Legacy hides a company&ndash;vendor chat room from non-admin participants once there's no
+          current-or-future order between that company and vendor (room + history stay intact,
+          just hidden from the list). We shipped all four chat room types with unconditional
+          visibility instead, since the ordering domain doesn't exist yet. Once it does, add the
+          order-relationship filter to <code>api.list_chat_rooms</code> — the room/membership
+          tables already have the right shape, this is a query change, not a migration.
+        </div>
+        <div class="tags">
+          <span class="tag accent">chat</span>
+          <span class="tag">api.list_chat_rooms</span>
+          <span class="tag warn">blocked on: orders domain</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="empty-note">New domains append their own section here as they're built — this page isn't touched otherwise.</p>
+</div>
+
+<script>
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem('wopla-ai-backlog-done') || '{}'); }
+    catch { return {}; }
+  }
+  function saveState(state) {
+    try { localStorage.setItem('wopla-ai-backlog-done', JSON.stringify(state)); } catch {}
+  }
+  const state = loadState();
+  document.querySelectorAll('.item').forEach((item) => {
+    const id = item.dataset.id;
+    const check = item.querySelector('.check');
+    function render() {
+      const done = !!state[id];
+      item.classList.toggle('done', done);
+      check.textContent = done ? '✓' : '';
+    }
+    check.addEventListener('click', () => {
+      state[id] = !state[id];
+      saveState(state);
+      render();
+    });
+    render();
+  });
+</script>
