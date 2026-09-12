@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
+import { QuickLoginButtons } from '#/components/demo-access/quick-login-buttons' // DEMO-ONLY, see components/demo-access/README.md
 import { fetchSessionUser, loginFn } from '#/lib/auth'
 import { queryClient } from '#/lib/query-client'
 
@@ -80,10 +81,8 @@ function LoginPage() {
             {pending ? 'Logging in…' : 'Log in'}
           </button>
         </form>
-        <p className="text-center text-xs text-neutral-500">
-          Demo: admin@demo.wopla.dk · vendor1@demo.wopla.dk · companyadmin1@demo.wopla.dk ·
-          employee1@demo.wopla.dk — password wopla-demo-1234
-        </p>
+        {/* DEMO-ONLY, see components/demo-access/README.md */}
+        <QuickLoginButtons />
       </div>
     </main>
   )

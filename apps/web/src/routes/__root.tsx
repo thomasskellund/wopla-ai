@@ -1,5 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { HeadContent, Outlet, Scripts, createRootRoute } from '@tanstack/react-router'
+import { DemoGate } from '#/components/demo-access/demo-gate' // DEMO-ONLY, see components/demo-access/README.md
 import { queryClient } from '#/lib/query-client'
 import appCss from '../styles.css?url'
 
@@ -19,7 +20,10 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      {/* DEMO-ONLY wrapper, see components/demo-access/README.md */}
+      <DemoGate>
+        <Outlet />
+      </DemoGate>
     </QueryClientProvider>
   )
 }
