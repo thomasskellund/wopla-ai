@@ -49,11 +49,11 @@ insert into public.vendors (id, name, address, city, zip, vat_number) values
 
 -- ------------------------------------------------------------- companies
 insert into public.companies (id, name, address, city, zip, vat_number) values
-  ('c0000000-0000-4000-8000-000000000001', 'Heyrobot ApS', 'Amagertorv 1', 'København', '1160', 'DK22222222'),
-  ('c0000000-0000-4000-8000-000000000002', 'Nordisk Consulting', 'Åboulevarden 5', 'Aarhus', '8000', 'DK33333333');
+  ('c0000000-0000-4000-8000-000000000001', 'CompanyA', 'Amagertorv 1', 'København', '1160', 'DK22222222'),
+  ('c0000000-0000-4000-8000-000000000002', 'CompanyB', 'Åboulevarden 5', 'Aarhus', '8000', 'DK33333333');
 
 -- ---------------------------------------------------------------- users
-select pg_temp.seed_user('a0000000-0000-4000-8000-000000000001', 'admin@demo.wopla.dk', 'admin', 'Admin Andersen');
+select pg_temp.seed_user('a0000000-0000-4000-8000-000000000001', 'admin@demo.wopla.dk', 'admin', 'Wopla Admin');
 
 select pg_temp.seed_user('a0000000-0000-4000-8000-000000000011', 'vendor1@demo.wopla.dk', 'vendor_admin', 'Vera Vendor',
   vendor => 'b0000000-0000-4000-8000-000000000001');

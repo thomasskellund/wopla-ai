@@ -11,10 +11,10 @@ export type QuickLoginUser = {
 }
 
 export const QUICK_LOGIN_USERS: QuickLoginUser[] = [
-  { label: 'Admin', email: 'admin@demo.wopla.dk', password: 'wopla-demo-1234' },
+  { label: 'Wopla admin', email: 'admin@demo.wopla.dk', password: 'wopla-demo-1234' },
   { label: 'Vendor admin', email: 'vendor1@demo.wopla.dk', password: 'wopla-demo-1234' },
-  { label: 'Heyrobot · admin', email: 'companyadmin1@demo.wopla.dk', password: 'wopla-demo-1234' },
-  { label: 'Heyrobot · employee', email: 'employee1@demo.wopla.dk', password: 'wopla-demo-1234' },
-  { label: 'Nordisk · admin', email: 'companyadmin2@demo.wopla.dk', password: 'wopla-demo-1234' },
-  { label: 'Nordisk · employee', email: 'employee3@demo.wopla.dk', password: 'wopla-demo-1234' },
+  { label: 'CompanyA · admin', email: 'companyadmin1@demo.wopla.dk', password: 'wopla-demo-1234' },
+  { label: 'CompanyA · employee', email: 'employee1@demo.wopla.dk', password: 'wopla-demo-1234' },
+  { label: 'CompanyB · admin', email: 'companyadmin2@demo.wopla.dk', password: 'wopla-demo-1234' },
+  { label: 'CompanyB · employee', email: 'employee3@demo.wopla.dk', password: 'wopla-demo-1234' },
 ]
