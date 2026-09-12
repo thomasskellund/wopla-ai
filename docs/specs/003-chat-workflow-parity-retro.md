@@ -36,21 +36,29 @@ actively *create* real data there first (place a real order, send a real
 message, complete a real workflow) rather than trusting whatever the existing
 demo state happens to show.
 
-### 2. Legacy's own chat navigation placement is inconsistent across roles
+### 2. Legacy's chat navigation is primary nav for every role — corrected
 
-- **Admin**: persistent icon in the primary left sidebar.
-- **Vendor Admin**: persistent icon in the primary left sidebar (same
-  treatment as Admin).
-- **Company Admin**: not in a sidebar at all — there isn't one for this
-  role. Chat is buried as "Messages," one line item inside the account-avatar
-  dropdown menu, alongside Invoices/Reports/Settings/etc.
+Initial testing (done at an 800px-wide viewport) found no visible sidebar
+for Company Admin at all, with "Messages" reachable only via the
+account-avatar dropdown — logged as a real inconsistency. Retested later at
+a proper desktop width (1440px) while researching the ordering domain: at
+that width, Company Admin actually gets a full primary top icon bar
+(calendar, employees, invoices, reports, contacts, chat, "+"), the same
+persistent-nav treatment Admin and Vendor Admin get via their left sidebar.
+The account-dropdown "Messages" item is a secondary/fallback entry, not the
+only path — it was just the only one visible at the narrower width, because
+legacy's Company Admin layout collapses its entire top bar with no visible
+toggle below some breakpoint (itself a legacy responsive bug worth noting,
+but a different, smaller one than originally logged here).
 
-wopla-ai currently gives all three roles the same persistent top-nav "Chat"
-link with an unread badge. That is a real, previously-undocumented
-divergence from legacy. It reads as an improvement (consistent, discoverable
-placement) rather than a deliberate legacy design worth preserving — but it
-should be a conscious choice, not an accident, which is why it's called out
-here explicitly rather than silently carried forward.
+**Correction**: chat's nav placement is consistent across all three roles
+in legacy after all (primary nav, not buried). wopla-ai's persistent top-nav
+"Chat" link matches legacy's intent correctly. No divergence to flag here —
+retracting the original finding.
+
+**Process lesson**: test legacy's frontend at a realistic desktop viewport
+width by default; a narrow test viewport can hide entire primary navigation
+and produce a false "this role has no access path" conclusion.
 
 ### 3. Custom-group creation is unusable from a cold start in legacy — confirms a fix we already made
 
