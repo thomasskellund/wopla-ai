@@ -1,0 +1,42 @@
+# Self-hosted deployment stack for the Wopla AI web app.
+#
+# Run from the repo root on a host that already has a reverse proxy (e.g.
+# nginx-proxy-manager) fronting the box. This container publishes only its
+# own port and joins the reverse proxy's docker network under the alias
+# "wopla-ai-web" so it can be reached without relying on the container's own
+# public hostname resolving back to itself (hairpin NAT is unreliable on
+# many routers/CGNAT connections) — see SUPABASE_HAIRPIN_HOST/IP below.
+#
+# Configure via a sibling .env (not committed — see .env.deploy.example):
+#   docker compose up -d --build
+
+services:
+  web:
+    build:
+      context: .
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:?set in .env}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:?set in .env}
+        VITE_APP_URL: ${VITE_APP_URL:?set in .env}
+    image: wopla-ai-web:latest
+    container_name: wopla-ai-web
+    restart: unless-stopped
+    ports:
+      - "3100:3000"
+    extra_hosts:
+      # Lets the container reach its own Supabase's public hostname without
+      # a hairpin-NAT round trip: resolves straight to the reverse proxy's
+      # docker network gateway instead of going out to the public internet
+      # and back in. SUPABASE_HAIRPIN_IP is typically the docker bridge
+      # gateway (`docker network inspect bridge --format
+      # '{{range .IPAM.Config}}{{.Gateway}}{{end}}'`, often 172.17.0.1).
+      - "${SUPABASE_HAIRPIN_HOST:?set in .env}:${SUPABASE_HAIRPIN_IP:?set in .env}"
+    networks:
+      default: {}
+      npm_default:
+        aliases:
+          - wopla-ai-web
+
+networks:
+  npm_default:
+    external: true

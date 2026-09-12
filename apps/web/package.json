@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "lint": "echo 'no lint config yet'",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "start:node": "node server/node-server.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
@@ -24,6 +25,7 @@
     "@wopla-ai/shared": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "srvx": "^0.11.22",
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
