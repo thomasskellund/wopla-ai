@@ -31,9 +31,20 @@ function Linkified({ text }: { text: string }) {
 }
 
 async function openAttachment(path: string) {
+  // Open the tab synchronously, inside the click handler — a window.open()
+  // called after the await below is no longer a direct result of the click
+  // as far as the browser's popup blocker is concerned, and gets silently
+  // blocked in most browsers. Point it at the real URL once we have it.
+  const tab = window.open('', '_blank')
   const supabase = getSupabaseBrowserClient()
   const { data, error } = await supabase.storage.from('chat-attachments').createSignedUrl(path, 60)
-  if (!error && data) window.open(data.signedUrl, '_blank')
+  if (error || !data) {
+    tab?.close()
+    alert('Could not open this attachment. Please try again.')
+    return
+  }
+  if (tab) tab.location.href = data.signedUrl
+  else window.open(data.signedUrl, '_blank')
 }
 
 type Props = {
@@ -87,6 +98,12 @@ export function ChatThread({ room, viewerRole, viewerId }: Props) {
         attachmentName: file.name,
         attachmentMime: file.type,
       })
+    } catch (err) {
+      alert(
+        err instanceof Error
+          ? `Couldn't send that attachment: ${err.message}`
+          : "Couldn't send that attachment. Check the file type and size (10 MB max).",
+      )
     } finally {
       setPending(false)
     }
