@@ -15,7 +15,85 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      archive_chat_room: {
+        Args: { p_archived: boolean; p_room_id: string }
+        Returns: undefined
+      }
+      create_custom_group: {
+        Args: { p_member_profile_ids: string[]; p_name: string }
+        Returns: Database["public"]["Tables"]["chat_rooms"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "chat_rooms"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      get_chat_messages: {
+        Args: { p_before?: string; p_limit?: number; p_room_id: string }
+        Returns: {
+          attachment_mime: string
+          attachment_name: string
+          attachment_path: string
+          body: string
+          created_at: string
+          id: string
+          sender_id: string
+          sender_name: string
+        }[]
+      }
+      get_or_create_company_vendor_room: {
+        Args: { p_other_id: string }
+        Returns: Database["public"]["Tables"]["chat_rooms"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "chat_rooms"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      list_chat_rooms: {
+        Args: { p_archived?: boolean; p_keyword?: string }
+        Returns: {
+          archived: boolean
+          company_id: string
+          company_name: string
+          id: string
+          last_message_at: string
+          last_message_preview: string
+          name: string
+          room_type: Database["public"]["Enums"]["chat_room_type"]
+          unread_count: number
+          vendor_id: string
+          vendor_name: string
+        }[]
+      }
+      mark_chat_room_read: { Args: { p_room_id: string }; Returns: undefined }
+      mark_chat_room_unread: { Args: { p_room_id: string }; Returns: undefined }
+      send_chat_message: {
+        Args: {
+          p_attachment_mime?: string
+          p_attachment_name?: string
+          p_attachment_path?: string
+          p_body?: string
+          p_room_id: string
+        }
+        Returns: Database["public"]["Tables"]["chat_messages"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "chat_messages"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_custom_group: {
+        Args: {
+          p_member_profile_ids: string[]
+          p_name: string
+          p_room_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
@@ -26,6 +104,160 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_messages: {
+        Row: {
+          attachment_mime: string | null
+          attachment_name: string | null
+          attachment_path: string | null
+          body: string | null
+          created_at: string
+          deleted_at: string | null
+          id: string
+          room_id: string
+          sender_id: string
+        }
+        Insert: {
+          attachment_mime?: string | null
+          attachment_name?: string | null
+          attachment_path?: string | null
+          body?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          room_id: string
+          sender_id: string
+        }
+        Update: {
+          attachment_mime?: string | null
+          attachment_name?: string | null
+          attachment_path?: string | null
+          body?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          room_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_room_members: {
+        Row: {
+          archived: boolean
+          created_at: string
+          id: string
+          last_read_at: string | null
+          profile_id: string
+          room_id: string
+          unread_count: number
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          profile_id: string
+          room_id: string
+          unread_count?: number
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          profile_id?: string
+          room_id?: string
+          unread_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_room_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_room_members_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_rooms: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          last_message_at: string
+          name: string | null
+          room_type: Database["public"]["Enums"]["chat_room_type"]
+          updated_at: string
+          vendor_id: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_message_at?: string
+          name?: string | null
+          room_type: Database["public"]["Enums"]["chat_room_type"]
+          updated_at?: string
+          vendor_id?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_message_at?: string
+          name?: string | null
+          room_type?: Database["public"]["Enums"]["chat_room_type"]
+          updated_at?: string
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_rooms_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_rooms_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_rooms_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           address: string | null
@@ -173,6 +405,11 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "vendor_admin" | "company_admin" | "employee"
+      chat_room_type:
+        | "admin_company"
+        | "admin_vendor"
+        | "company_vendor"
+        | "custom_group"
       entity_status: "active" | "inactive"
     }
     CompositeTypes: {
@@ -305,6 +542,12 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "vendor_admin", "company_admin", "employee"],
+      chat_room_type: [
+        "admin_company",
+        "admin_vendor",
+        "company_vendor",
+        "custom_group",
+      ],
       entity_status: ["active", "inactive"],
     },
   },

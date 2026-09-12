@@ -54,6 +54,7 @@ insert into public.companies (id, name, address, city, zip, vat_number) values
 
 -- ---------------------------------------------------------------- users
 select pg_temp.seed_user('a0000000-0000-4000-8000-000000000001', 'admin@demo.wopla.dk', 'admin', 'Wopla Admin');
+select pg_temp.seed_user('a0000000-0000-4000-8000-000000000002', 'admin2@demo.wopla.dk', 'admin', 'Second Admin');
 
 select pg_temp.seed_user('a0000000-0000-4000-8000-000000000011', 'vendor1@demo.wopla.dk', 'vendor_admin', 'Vera Vendor',
   vendor => 'b0000000-0000-4000-8000-000000000001');
@@ -69,5 +70,47 @@ select pg_temp.seed_user('a0000000-0000-4000-8000-000000000102', 'employee2@demo
   company => 'c0000000-0000-4000-8000-000000000001');
 select pg_temp.seed_user('a0000000-0000-4000-8000-000000000201', 'employee3@demo.wopla.dk', 'employee', 'Ella Employee',
   company => 'c0000000-0000-4000-8000-000000000002');
+
+-- ------------------------------------------------------------------- chat
+-- admin_company / admin_vendor rooms already exist (created by triggers
+-- when the companies/vendors above were inserted). Seed a few messages so
+-- the chat UI has something to show.
+insert into public.chat_messages (room_id, sender_id, body, created_at)
+select id, 'a0000000-0000-4000-8000-000000000021', 'Hi, we have a question about switching our delivery days.', now() - interval '2 hours'
+from public.chat_rooms where room_type = 'admin_company' and company_id = 'c0000000-0000-4000-8000-000000000001';
+insert into public.chat_messages (room_id, sender_id, body, created_at)
+select id, 'a0000000-0000-4000-8000-000000000001', 'Sure — which days would you like instead?', now() - interval '1 hour'
+from public.chat_rooms where room_type = 'admin_company' and company_id = 'c0000000-0000-4000-8000-000000000001';
+
+insert into public.chat_messages (room_id, sender_id, body, created_at)
+select id, 'a0000000-0000-4000-8000-000000000011', 'We need to update our weekly menu for next month.', now() - interval '3 hours'
+from public.chat_rooms where room_type = 'admin_vendor' and vendor_id = 'b0000000-0000-4000-8000-000000000001';
+
+update public.chat_rooms set last_message_at = (
+  select max(created_at) from public.chat_messages where chat_messages.room_id = chat_rooms.id
+)
+where exists (select 1 from public.chat_messages where chat_messages.room_id = chat_rooms.id);
+
+-- one company-vendor room with a short exchange
+insert into public.chat_rooms (id, room_type, company_id, vendor_id, created_by)
+values (
+  'e0000000-0000-4000-8000-000000000001', 'company_vendor',
+  'c0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001',
+  'a0000000-0000-4000-8000-000000000021'
+);
+insert into public.chat_messages (room_id, sender_id, body, created_at) values
+  ('e0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000021', 'Could we get an extra vegetarian option on Fridays?', now() - interval '30 minutes'),
+  ('e0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000011', 'Absolutely, I''ll add it from next week.', now() - interval '20 minutes');
+update public.chat_rooms set last_message_at = now() - interval '20 minutes'
+where id = 'e0000000-0000-4000-8000-000000000001';
+
+-- give the recipients an unread badge to demo the inbox state
+insert into public.chat_room_members (room_id, profile_id, unread_count)
+select id, 'a0000000-0000-4000-8000-000000000021', 1
+from public.chat_rooms where room_type = 'admin_company' and company_id = 'c0000000-0000-4000-8000-000000000001'
+on conflict (room_id, profile_id) do update set unread_count = excluded.unread_count;
+insert into public.chat_room_members (room_id, profile_id, unread_count)
+values ('e0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000021', 1)
+on conflict (room_id, profile_id) do update set unread_count = excluded.unread_count;
 
 commit;
