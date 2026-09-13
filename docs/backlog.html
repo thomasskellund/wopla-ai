@@ -190,8 +190,8 @@
     <h1>Follow-ups &amp; deferred work</h1>
     <p>Things deliberately deferred while building the rewrite domain by domain — not forgotten, just out of order. Check one off once it's actually addressed in a migration or spec update.</p>
     <div class="meta">
-      <span><b>8</b> open</span>
-      <span>Last logged <b>2026-09-13</b></span>
+      <span><b>13</b> open</span>
+      <span>Last logged <b>2026-09-14</b></span>
     </div>
   </div>
 
@@ -317,6 +317,83 @@
         <div class="tags">
           <span class="tag accent">ordering</span>
           <span class="tag warn">blocked on: offboarding flow</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2>Domain 4 — Invoicing</h2>
+      <span class="count">5 items</span>
+    </div>
+    <div class="items">
+      <div class="item" data-id="invoicing-full-contracts">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Full commercial contracts (delivery pricing, per-dish approval-workflowed pricing, multi-module rates)</div>
+        <div class="rationale">
+          <code>public.billing_rates</code> ships as a deliberately minimal stand-in (per-head vendor/customer
+          rate + kickback %, date-versioned) for exactly what Lunch invoicing needs. Legacy's real
+          <code>Contract</code>/<code>ContractOrder</code> also covers delivery pricing and a time-versioned,
+          approval-workflowed per-dish price table (<code>DishUserPrice</code>) for non-combined modules &mdash;
+          neither is needed until a second module or per-dish billing exists.
+        </div>
+        <div class="tags">
+          <span class="tag accent">invoicing</span>
+          <span class="tag">public.billing_rates</span>
+        </div>
+      </div>
+      <div class="item" data-id="invoicing-minimum-heads-floor">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Enforce minimum_heads as an actual billing floor</div>
+        <div class="rationale">
+          <code>daily_orders.minimum_heads</code> stays inert this pass, matching legacy's own real behavior
+          &mdash; despite the schema and field name implying otherwise, legacy never substitutes it for actual
+          heads anywhere in the invoice engine. Wiring it up for real would be a genuine improvement over
+          legacy, not parity, and was deliberately deferred rather than assumed.
+        </div>
+        <div class="tags">
+          <span class="tag accent">invoicing</span>
+          <span class="tag">daily_orders.minimum_heads</span>
+        </div>
+      </div>
+      <div class="item" data-id="invoicing-employee-share-payroll">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Employee-share payroll export (Danløn/Datalon/Intega-style deduction file)</div>
+        <div class="rationale">
+          Research surfaced that <code>daily_orders.employee_share</code> doesn't belong to invoicing at all in
+          legacy &mdash; it's consumed exclusively by a separate payroll-export feature that turns ordered-lunch
+          counts into a payroll deduction file. Not touched this pass; needs its own domain.
+        </div>
+        <div class="tags">
+          <span class="tag accent">invoicing</span>
+          <span class="tag">daily_orders.employee_share</span>
+          <span class="tag warn">needs its own domain</span>
+        </div>
+      </div>
+      <div class="item" data-id="invoicing-multi-counterparty">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Multi-counterparty ("bulk") invoices</div>
+        <div class="rationale">
+          Legacy's <code>Invoice</code>&harr;<code>InvoiceUser</code> is one-to-many &mdash; one invoice can bill
+          several companies or vendors at once. This pass flattens to exactly one counterparty per invoice as a
+          deliberate simplification, not an oversight; widening later is schema-additive.
+        </div>
+        <div class="tags">
+          <span class="tag accent">invoicing</span>
+          <span class="tag">public.invoices</span>
+        </div>
+      </div>
+      <div class="item" data-id="invoicing-overdue-status">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">A real overdue status with reminders/escalation</div>
+        <div class="rationale">
+          This pass only computes an <code>is_overdue</code> flag at read time (status = sent, past due date)
+          &mdash; legacy has no equivalent at all. A persisted status plus reminder/escalation emails is a
+          bigger, separate feature deliberately not built here.
+        </div>
+        <div class="tags">
+          <span class="tag accent">invoicing</span>
         </div>
       </div>
     </div>

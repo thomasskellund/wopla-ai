@@ -161,6 +161,22 @@ join public.dishes d on d.id = h.dish_id;
 -- empty state to greet a fresh reset with.
 select engine.roll_orders(14);
 
+-- ------------------------------------------------------------------ invoicing
+-- One billing rate per demo order — the minimal contract stand-in.
+-- CompanyA's vendor charges Wopla less per head than Wopla charges
+-- CompanyA (the markup), plus a small kickback on the vendor side.
+insert into public.billing_rates (order_id, vendor_per_head_price, company_per_head_price, kickback_percentage, from_date, to_date) values
+  ('f0000000-0000-4000-8000-000000000001', 35.00, 45.00, 5.00, current_date - 30, null),
+  ('f0000000-0000-4000-8000-000000000002', 32.00, 42.00, 5.00, current_date - 30, null);
+
+-- Two real invoices (one per invoice type), generated the same way
+-- api.create_invoice does, so there's a populated example for both
+-- company_admin and vendor_admin the moment anyone logs in. Forward-
+-- looking range: engine.roll_orders(14) above only pre-materializes
+-- daily_orders from today onward, never backfilling past dates.
+select api.create_invoice('wopla_to_customer'::public.invoice_type, 'c0000000-0000-4000-8000-000000000001'::uuid, current_date, current_date + 14, 1::smallint);
+select api.create_invoice('vendor_to_wopla'::public.invoice_type, 'b0000000-0000-4000-8000-000000000001'::uuid, current_date, current_date + 14, 1::smallint);
+
 -- give the recipients an unread badge to demo the inbox state
 insert into public.chat_room_members (room_id, profile_id, unread_count)
 select id, 'a0000000-0000-4000-8000-000000000021', 1

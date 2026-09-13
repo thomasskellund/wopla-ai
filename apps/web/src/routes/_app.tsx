@@ -14,6 +14,7 @@ export const Route = createFileRoute('/_app')({
 
 const CHAT_ROLES = new Set(['admin', 'company_admin', 'vendor_admin'])
 const ORDERING_ROLES = new Set(['company_admin', 'employee', 'vendor_admin'])
+const INVOICING_ROLES = new Set(['admin', 'company_admin', 'vendor_admin'])
 
 function AppLayout() {
   const { user } = Route.useRouteContext()
@@ -43,6 +44,14 @@ function AppLayout() {
                 className="text-neutral-600 hover:underline [&.active]:font-medium [&.active]:text-neutral-900"
               >
                 Ordering
+              </Link>
+            )}
+            {INVOICING_ROLES.has(user.role) && (
+              <Link
+                to="/invoicing"
+                className="text-neutral-600 hover:underline [&.active]:font-medium [&.active]:text-neutral-900"
+              >
+                Invoicing
               </Link>
             )}
             {canChat && (

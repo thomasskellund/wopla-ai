@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppChatRouteImport } from './routes/_app/chat'
+import { Route as AppInvoicingRouteImport } from './routes/_app/invoicing'
 import { Route as AppOrderingRouteImport } from './routes/_app/ordering'
 
 const AppRoute = AppRouteImport.update({
@@ -40,6 +41,11 @@ const AppChatRoute = AppChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => AppRoute,
 } as any)
+const AppInvoicingRoute = AppInvoicingRouteImport.update({
+  id: '/invoicing',
+  path: '/invoicing',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOrderingRoute = AppOrderingRouteImport.update({
   id: '/ordering',
   path: '/ordering',
@@ -51,12 +57,14 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/chat': typeof AppChatRoute
+  '/invoicing': typeof AppInvoicingRoute
   '/ordering': typeof AppOrderingRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/chat': typeof AppChatRoute
+  '/invoicing': typeof AppInvoicingRoute
   '/ordering': typeof AppOrderingRoute
   '/': typeof AppIndexRoute
 }
@@ -66,20 +74,23 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/_app/chat': typeof AppChatRoute
+  '/_app/invoicing': typeof AppInvoicingRoute
   '/_app/ordering': typeof AppOrderingRoute
   '/_app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/unauthorized' | '/chat' | '/ordering'
+  fullPaths:
+    '/' | '/login' | '/unauthorized' | '/chat' | '/invoicing' | '/ordering'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/unauthorized' | '/chat' | '/ordering' | '/'
+  to: '/login' | '/unauthorized' | '/chat' | '/invoicing' | '/ordering' | '/'
   id:
     | '__root__'
     | '/_app'
     | '/login'
     | '/unauthorized'
     | '/_app/chat'
+    | '/_app/invoicing'
     | '/_app/ordering'
     | '/_app/'
   fileRoutesById: FileRoutesById
@@ -127,6 +138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppChatRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/invoicing': {
+      id: '/_app/invoicing'
+      path: '/invoicing'
+      fullPath: '/invoicing'
+      preLoaderRoute: typeof AppInvoicingRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/ordering': {
       id: '/_app/ordering'
       path: '/ordering'
@@ -139,12 +157,14 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppChatRoute: typeof AppChatRoute
+  AppInvoicingRoute: typeof AppInvoicingRoute
   AppOrderingRoute: typeof AppOrderingRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppChatRoute: AppChatRoute,
+  AppInvoicingRoute: AppInvoicingRoute,
   AppOrderingRoute: AppOrderingRoute,
   AppIndexRoute: AppIndexRoute,
 }

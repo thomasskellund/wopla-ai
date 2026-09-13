@@ -15,6 +15,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_manual_line_item: {
+        Args: {
+          p_description: string
+          p_invoice_id: string
+          p_quantity: number
+          p_unit_price: number
+        }
+        Returns: Database["public"]["Tables"]["invoice_line_items"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "invoice_line_items"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       archive_chat_room: {
         Args: { p_archived: boolean; p_room_id: string }
         Returns: undefined
@@ -49,6 +64,22 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_invoice: {
+        Args: {
+          p_counterparty_id: string
+          p_from_date: string
+          p_module_id?: number
+          p_to_date: string
+          p_type: Database["public"]["Enums"]["invoice_type"]
+        }
+        Returns: Database["public"]["Tables"]["invoices"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "invoices"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_order: {
         Args: {
           p_company_id: string
@@ -77,6 +108,26 @@ export type Database = {
           sender_id: string
           sender_name: string
         }[]
+      }
+      get_current_billing_rate: {
+        Args: { p_order_id: string }
+        Returns: Database["public"]["Tables"]["billing_rates"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "billing_rates"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      get_invoice: {
+        Args: { p_invoice_id: string }
+        Returns: Database["public"]["Tables"]["invoices"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "invoices"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       get_my_week: {
         Args: { p_order_id: string; p_week_start: string }
@@ -138,6 +189,16 @@ export type Database = {
       }
       mark_chat_room_read: { Args: { p_room_id: string }; Returns: undefined }
       mark_chat_room_unread: { Args: { p_room_id: string }; Returns: undefined }
+      mark_invoice_paid: {
+        Args: { p_invoice_id: string }
+        Returns: Database["public"]["Tables"]["invoices"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "invoices"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       record_extra_heads: {
         Args: {
           p_daily_order_id: string
@@ -149,6 +210,21 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "daily_order_dish_heads"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      reject_invoice: {
+        Args: {
+          p_credit_note_amount: number
+          p_credit_note_reason: string
+          p_invoice_id: string
+          p_rejection_reason: string
+        }
+        Returns: Database["public"]["Tables"]["invoices"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "invoices"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -169,6 +245,23 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "chat_messages"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      set_billing_rate: {
+        Args: {
+          p_company_per_head_price: number
+          p_from_date?: string
+          p_kickback_percentage?: number
+          p_order_id: string
+          p_to_date?: string
+          p_vendor_per_head_price: number
+        }
+        Returns: Database["public"]["Tables"]["billing_rates"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "billing_rates"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -204,6 +297,16 @@ export type Database = {
         }
         Returns: undefined
       }
+      submit_invoice: {
+        Args: { p_invoice_id: string }
+        Returns: Database["public"]["Tables"]["invoices"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "invoices"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       uncancel_daily_order: {
         Args: { p_order_date: string; p_order_id: string }
         Returns: Database["public"]["Tables"]["daily_orders"]["Row"]
@@ -232,6 +335,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      billing_rates: {
+        Row: {
+          company_per_head_price: number
+          created_at: string
+          created_by: string | null
+          from_date: string
+          id: string
+          kickback_percentage: number
+          order_id: string
+          to_date: string | null
+          vendor_per_head_price: number
+        }
+        Insert: {
+          company_per_head_price: number
+          created_at?: string
+          created_by?: string | null
+          from_date: string
+          id?: string
+          kickback_percentage?: number
+          order_id: string
+          to_date?: string | null
+          vendor_per_head_price: number
+        }
+        Update: {
+          company_per_head_price?: number
+          created_at?: string
+          created_by?: string | null
+          from_date?: string
+          id?: string
+          kickback_percentage?: number
+          order_id?: string
+          to_date?: string | null
+          vendor_per_head_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_rates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_rates_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           attachment_mime: string | null
@@ -843,6 +997,209 @@ export type Database = {
           },
         ]
       }
+      invoice_credit_notes: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          id: string
+          invoice_id: string
+          reason: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          invoice_id: string
+          reason: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          invoice_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_credit_notes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_credit_notes_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_line_items: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          invoice_id: string
+          line_type: Database["public"]["Enums"]["invoice_line_type"]
+          period_end: string | null
+          period_start: string | null
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          description: string
+          id?: string
+          invoice_id: string
+          line_type: Database["public"]["Enums"]["invoice_line_type"]
+          period_end?: string | null
+          period_start?: string | null
+          quantity?: number
+          unit_price: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          invoice_id?: string
+          line_type?: Database["public"]["Enums"]["invoice_line_type"]
+          period_end?: string | null
+          period_start?: string | null
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_line_items_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_line_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          created_by: string | null
+          due_date: string | null
+          from_date: string
+          id: string
+          last_synced_at: string | null
+          module_id: number
+          paid_at: string | null
+          payment_terms_days: number
+          rejected_at: string | null
+          rejection_reason: string | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["invoice_status"]
+          subtotal: number
+          to_date: string
+          total: number
+          type: Database["public"]["Enums"]["invoice_type"]
+          updated_at: string
+          vat_amount: number
+          vat_rate: number
+          vendor_id: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_date?: string | null
+          from_date: string
+          id?: string
+          last_synced_at?: string | null
+          module_id?: number
+          paid_at?: string | null
+          payment_terms_days: number
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          subtotal?: number
+          to_date: string
+          total?: number
+          type: Database["public"]["Enums"]["invoice_type"]
+          updated_at?: string
+          vat_amount?: number
+          vat_rate?: number
+          vendor_id?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_date?: string | null
+          from_date?: string
+          id?: string
+          last_synced_at?: string | null
+          module_id?: number
+          paid_at?: string | null
+          payment_terms_days?: number
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          subtotal?: number
+          to_date?: string
+          total?: number
+          type?: Database["public"]["Enums"]["invoice_type"]
+          updated_at?: string
+          vat_amount?: number
+          vat_rate?: number
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       modules: {
         Row: {
           id: number
@@ -1188,6 +1545,9 @@ export type Database = {
         | "custom_group"
       daily_order_status: "active" | "locked" | "cancelled"
       entity_status: "active" | "inactive"
+      invoice_line_type: "heads" | "kickback" | "manual"
+      invoice_status: "draft" | "sent" | "paid" | "rejected"
+      invoice_type: "vendor_to_wopla" | "wopla_to_customer"
       weekday: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"
     }
     CompositeTypes: {
@@ -1328,6 +1688,9 @@ export const Constants = {
       ],
       daily_order_status: ["active", "locked", "cancelled"],
       entity_status: ["active", "inactive"],
+      invoice_line_type: ["heads", "kickback", "manual"],
+      invoice_status: ["draft", "sent", "paid", "rejected"],
+      invoice_type: ["vendor_to_wopla", "wopla_to_customer"],
       weekday: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
     },
   },
