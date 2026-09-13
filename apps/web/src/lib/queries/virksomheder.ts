@@ -1,5 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { FunctionsHttpError } from '@supabase/supabase-js'
 import { getSupabaseBrowserClient } from '#/lib/supabase/client'
+
+// supabase-js throws a generic FunctionsHttpError ("Edge Function returned a
+// non-2xx status code") on any non-2xx response, discarding the function's
+// own JSON error body — the actual message only lives on error.context (the
+// raw Response). Without this, every create-employee failure (duplicate
+// email, permission denied, bad input, ...) looked identical and unhelpful.
+async function functionErrorMessage(error: unknown): Promise<string> {
+  if (error instanceof FunctionsHttpError) {
+    const body = await error.context
+      .clone()
+      .json()
+      .catch(() => null)
+    if (body?.error) return body.error as string
+  }
+  return (error as Error).message
+}
 
 // ------------------------------------------------------------- companies
 export function useCompanies() {
@@ -148,7 +165,7 @@ export function useCreateAccount() {
           body: { email: args.email, fullName: args.fullName, role: args.role, companyId: args.companyId, vendorId: args.vendorId },
         },
       )
-      if (error) throw error
+      if (error) throw new Error(await functionErrorMessage(error))
       if (data?.error) throw new Error(data.error)
       return data as { email: string; password: string }
     },
