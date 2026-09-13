@@ -190,7 +190,7 @@
     <h1>Follow-ups &amp; deferred work</h1>
     <p>Things deliberately deferred while building the rewrite domain by domain — not forgotten, just out of order. Check one off once it's actually addressed in a migration or spec update.</p>
     <div class="meta">
-      <span><b>13</b> open</span>
+      <span><b>21</b> open</span>
       <span>Last logged <b>2026-09-14</b></span>
     </div>
   </div>
@@ -394,6 +394,117 @@
         </div>
         <div class="tags">
           <span class="tag accent">invoicing</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2>Domain 5 — Virksomheder</h2>
+      <span class="count">8 items</span>
+    </div>
+    <div class="items">
+      <div class="item" data-id="virksomheder-grant-access">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Per-employee, per-module order access grants ("Giv adgang")</div>
+        <div class="rationale">
+          Legacy lets an admin grant an employee access to order from modules beyond Lunch (every
+          employee implicitly has Lunch). Deferred entirely &mdash; no second order module exists in
+          wopla-ai yet, so there's nothing to grant access to.
+        </div>
+        <div class="tags">
+          <span class="tag accent">virksomheder</span>
+          <span class="tag warn">blocked on: a second order module</span>
+        </div>
+      </div>
+      <div class="item" data-id="virksomheder-restrict-dishes">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Per-weekday dish restrictions ("Begræns retter"), including the migration workflow</div>
+        <div class="rationale">
+          Legacy's version isn't a passive blacklist &mdash; restricting a dish that's already selected
+          somewhere triggers a real, cutoff-aware migration that reassigns existing orders to a
+          replacement dish. Deferred entirely this pass, not even a simplified version.
+        </div>
+        <div class="tags">
+          <span class="tag accent">virksomheder</span>
+        </div>
+      </div>
+      <div class="item" data-id="virksomheder-associated-vendors">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">"Tilknyttede leverandører" (associated vendors) tab</div>
+        <div class="rationale">
+          Confirmed live-broken in legacy, and research found it duplicates a different, working tab
+          that sources the same <code>orders</code> data more simply. Not reproduced &mdash; if a
+          "which vendors does this company order from" view is ever wanted, it's a trivial query
+          over <code>orders</code>, not a dedicated feature.
+        </div>
+        <div class="tags">
+          <span class="tag accent">virksomheder</span>
+        </div>
+      </div>
+      <div class="item" data-id="virksomheder-payroll-fields">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Payroll/accounting-system integration fields on the company record</div>
+        <div class="rationale">
+          Legacy's company "Generel" tab holds a whole sub-entity for four different Danish payroll
+          systems (Danløn/Dataløn/IntegaLøn/Zenegy). No equivalent in wopla-ai; deferred.
+        </div>
+        <div class="tags">
+          <span class="tag accent">virksomheder</span>
+        </div>
+      </div>
+      <div class="item" data-id="virksomheder-report-scheduling">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Automated report scheduling per company</div>
+        <div class="rationale">
+          Legacy's <code>Company.report_start_day/report_end_day/report_emails</code> &mdash; no
+          equivalent anywhere in wopla-ai yet. Deferred.
+        </div>
+        <div class="tags">
+          <span class="tag accent">virksomheder</span>
+        </div>
+      </div>
+      <div class="item" data-id="virksomheder-multi-branch">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Multi-branch company hierarchy + multi-company employee bindings</div>
+        <div class="rationale">
+          Legacy's <code>parent_company</code>/<code>subCompanies</code> tree and the
+          <code>UserBinding</code> many-to-many let one employee belong to several companies and one
+          company roll up several sub-companies. wopla-ai's <code>companies</code>/<code>profiles</code>
+          stay single-company by design this pass.
+        </div>
+        <div class="tags">
+          <span class="tag accent">virksomheder</span>
+        </div>
+      </div>
+      <div class="item" data-id="virksomheder-offboarding-cascade">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Offboarding cancel-cascade (and its confirmed bug)</div>
+        <div class="rationale">
+          Legacy force-cancels an offboarded employee's future daily orders &mdash; via a tautological
+          condition (<code>status != A || status != B</code>, always true) that also wipes
+          already-locked/cancelled orders' metadata, precisely located at
+          <code>OrderReassignmentService.php:112-123</code>. This pass's employee removal is a soft
+          deactivation only; the whole cascade feature (bug included) is deferred as a unit, not just
+          the bug.
+        </div>
+        <div class="tags">
+          <span class="tag accent">virksomheder</span>
+          <span class="tag warn">confirmed legacy bug — do not reproduce when built</span>
+        </div>
+      </div>
+      <div class="item" data-id="virksomheder-vendor-delivery-fields">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Vendor delivery zones, module participation/thresholds, CSV integration toggles</div>
+        <div class="rationale">
+          Legacy's vendor record carries per-vendor delivery zip-code zones (with exclusions), which
+          order modules it participates in, per-module minimum thresholds, and export/integration
+          toggles. This pass's vendor CRUD is the same base fields companies already share
+          (name/address/city/zip/vat/status) &mdash; nothing vendor-specific yet.
+        </div>
+        <div class="tags">
+          <span class="tag accent">virksomheder</span>
         </div>
       </div>
     </div>

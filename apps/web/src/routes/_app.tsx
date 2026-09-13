@@ -15,6 +15,8 @@ export const Route = createFileRoute('/_app')({
 const CHAT_ROLES = new Set(['admin', 'company_admin', 'vendor_admin'])
 const ORDERING_ROLES = new Set(['company_admin', 'employee', 'vendor_admin'])
 const INVOICING_ROLES = new Set(['admin', 'company_admin', 'vendor_admin'])
+const COMPANIES_ROLES = new Set(['admin', 'company_admin'])
+const VENDORS_ROLES = new Set(['admin', 'vendor_admin'])
 
 function AppLayout() {
   const { user } = Route.useRouteContext()
@@ -38,6 +40,22 @@ function AppLayout() {
             <Link to="/" className="text-neutral-600 hover:underline [&.active]:font-medium [&.active]:text-neutral-900">
               Home
             </Link>
+            {COMPANIES_ROLES.has(user.role) && (
+              <Link
+                to="/companies"
+                className="text-neutral-600 hover:underline [&.active]:font-medium [&.active]:text-neutral-900"
+              >
+                Companies
+              </Link>
+            )}
+            {VENDORS_ROLES.has(user.role) && (
+              <Link
+                to="/vendors"
+                className="text-neutral-600 hover:underline [&.active]:font-medium [&.active]:text-neutral-900"
+              >
+                Vendors
+              </Link>
+            )}
             {ORDERING_ROLES.has(user.role) && (
               <Link
                 to="/ordering"

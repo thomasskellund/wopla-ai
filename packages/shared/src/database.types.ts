@@ -44,6 +44,20 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_company_holiday: {
+        Args: {
+          p_company_id: string
+          p_holiday_date: string
+          p_module_id?: number
+        }
+        Returns: Database["public"]["Tables"]["company_holidays"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "company_holidays"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_custom_group: {
         Args: { p_member_profile_ids: string[]; p_name: string }
         Returns: Database["public"]["Tables"]["chat_rooms"]["Row"]
@@ -60,6 +74,16 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "dishes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_employee_absence: {
+        Args: { p_absence_date: string; p_profile_id: string }
+        Returns: Database["public"]["Tables"]["employee_absences"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "employee_absences"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -96,6 +120,19 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_public_holiday: {
+        Args: { p_holiday_date: string; p_module_id?: number; p_name: string }
+        Returns: Database["public"]["Tables"]["public_holidays"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "public_holidays"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      delete_company_holiday: { Args: { p_id: string }; Returns: undefined }
+      delete_employee_absence: { Args: { p_id: string }; Returns: undefined }
+      delete_public_holiday: { Args: { p_id: string }; Returns: undefined }
       get_chat_messages: {
         Args: { p_before?: string; p_limit?: number; p_room_id: string }
         Returns: {
@@ -266,6 +303,25 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      set_company_working_days: {
+        Args: {
+          p_company_id: string
+          p_fri: boolean
+          p_mon: boolean
+          p_sat: boolean
+          p_sun: boolean
+          p_thu: boolean
+          p_tue: boolean
+          p_wed: boolean
+        }
+        Returns: Database["public"]["Tables"]["company_working_days"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "company_working_days"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       set_dish_status: {
         Args: {
           p_dish_id: string
@@ -275,6 +331,27 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "dishes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      set_grace_period: {
+        Args: {
+          p_cancel_grace_period: boolean
+          p_cancellation_days: number
+          p_cancellation_time: string
+          p_company_id: string
+          p_major_update_days: number
+          p_major_update_time: string
+          p_minor_update_days: number
+          p_minor_update_time: string
+          p_module_id: number
+          p_threshold: number
+        }
+        Returns: Database["public"]["Tables"]["grace_periods"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "grace_periods"
           isOneToOne: true
           isSetofReturn: false
         }
