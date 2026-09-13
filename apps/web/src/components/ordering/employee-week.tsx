@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { localISODate } from '#/lib/dates'
-import { useDishes, useMyWeek, useSetMyDailyChoice, useSetMyWeeklyPreference } from '#/lib/queries/ordering'
+import { useDishes, useMyWeek, useMyWeeklyPreferences, useSetMyDailyChoice, useSetMyWeeklyPreference } from '#/lib/queries/ordering'
 
 const WEEKDAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
 const WEEKDAY_LABELS: Record<(typeof WEEKDAYS)[number], string> = {
@@ -35,8 +35,13 @@ export function EmployeeWeek({ orderId, vendorId }: Props) {
 
   const { data: dishes } = useDishes(vendorId)
   const { data: week, isLoading } = useMyWeek(orderId, weekStartISO)
+  const { data: weeklyPrefs } = useMyWeeklyPreferences(orderId)
   const setDailyChoice = useSetMyDailyChoice(orderId)
   const setWeeklyPref = useSetMyWeeklyPreference(orderId)
+
+  function standingChoiceFor(weekday: string) {
+    return weeklyPrefs?.find((p) => p.weekday === weekday)?.dish_id ?? ''
+  }
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -53,7 +58,7 @@ export function EmployeeWeek({ orderId, vendorId }: Props) {
               <select
                 className="rounded-md border border-[var(--border)] px-2 py-1 text-sm text-neutral-900"
                 onChange={(e) => setWeeklyPref.mutate({ weekday: wd, dishId: e.target.value || null })}
-                defaultValue=""
+                value={standingChoiceFor(wd)}
               >
                 <option value="">No lunch</option>
                 {dishes?.map((dish) => (

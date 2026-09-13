@@ -124,7 +124,10 @@ export function useSetMyWeeklyPreference(orderId: string | null) {
       })
       if (error) throw error
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['my_week'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my_week'] })
+      queryClient.invalidateQueries({ queryKey: ['my_weekly_preferences', orderId] })
+    },
   })
 }
 
@@ -141,6 +144,23 @@ export function useSetMyDailyChoice(orderId: string | null) {
       if (error) throw error
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['my_week'] }),
+  })
+}
+
+/** The caller's own standing weekly choices (RLS already scopes this to "own"). */
+export function useMyWeeklyPreferences(orderId: string | null) {
+  return useQuery({
+    queryKey: ['my_weekly_preferences', orderId],
+    enabled: !!orderId,
+    queryFn: async () => {
+      const supabase = getSupabaseBrowserClient()
+      const { data, error } = await supabase
+        .from('user_dish_preferences')
+        .select('weekday, dish_id')
+        .eq('order_id', orderId as string)
+      if (error) throw error
+      return data
+    },
   })
 }
 
