@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
+import { Link, createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { QuickLoginButtons } from '#/components/demo-access/quick-login-buttons' // DEMO-ONLY, see components/demo-access/README.md
 import { fetchSessionUser, loginFn } from '#/lib/auth'
@@ -59,9 +59,14 @@ function LoginPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <label htmlFor="password" className="text-sm font-medium">
-              Password
-            </label>
+            <div className="flex items-center justify-between">
+              <label htmlFor="password" className="text-sm font-medium">
+                Password
+              </label>
+              <Link to="/forgot-password" className="text-xs text-[var(--muted-foreground)] hover:underline">
+                Forgot password?
+              </Link>
+            </div>
             <input
               id="password"
               type="password"

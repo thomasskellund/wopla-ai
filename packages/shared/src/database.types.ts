@@ -44,6 +44,16 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_announcement: {
+        Args: { p_body: string; p_expires_at?: string; p_title: string }
+        Returns: Database["public"]["Tables"]["announcements"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "announcements"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_company_holiday: {
         Args: {
           p_company_id: string
@@ -130,6 +140,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      delete_announcement: { Args: { p_id: string }; Returns: undefined }
       delete_company_holiday: { Args: { p_id: string }; Returns: undefined }
       delete_employee_absence: { Args: { p_id: string }; Returns: undefined }
       delete_public_holiday: { Args: { p_id: string }; Returns: undefined }
@@ -201,6 +212,17 @@ export type Database = {
           status: Database["public"]["Enums"]["daily_order_status"]
         }[]
       }
+      list_announcements: {
+        Args: never
+        Returns: {
+          body: string
+          created_at: string
+          expires_at: string
+          id: string
+          is_read: boolean
+          title: string
+        }[]
+      }
       list_available_vendors: {
         Args: never
         Returns: {
@@ -224,6 +246,7 @@ export type Database = {
           vendor_name: string
         }[]
       }
+      mark_announcement_read: { Args: { p_id: string }; Returns: undefined }
       mark_chat_room_read: { Args: { p_room_id: string }; Returns: undefined }
       mark_chat_room_unread: { Args: { p_room_id: string }; Returns: undefined }
       mark_invoice_paid: {
@@ -412,6 +435,77 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcement_reads: {
+        Row: {
+          announcement_id: string
+          profile_id: string
+          read_at: string
+        }
+        Insert: {
+          announcement_id: string
+          profile_id: string
+          read_at?: string
+        }
+        Update: {
+          announcement_id?: string
+          profile_id?: string
+          read_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_reads_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcement_reads_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      announcements: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          expires_at: string | null
+          id: string
+          title: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          expires_at?: string | null
+          id?: string
+          title: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          expires_at?: string | null
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       billing_rates: {
         Row: {
           company_per_head_price: number

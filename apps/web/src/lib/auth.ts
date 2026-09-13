@@ -9,6 +9,8 @@ export type SessionUser = {
   companyId: string | null
   vendorId: string | null
   fullName: string
+  language: 'da' | 'en'
+  tenantName: string | null
 }
 
 /** Reads the authenticated user + Wopla claims from the session cookie. */
@@ -23,9 +25,18 @@ export const fetchSessionUser = createServerFn({ method: 'GET' }).handler(
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('full_name')
+      .select('full_name, language')
       .eq('id', data.user.id)
       .single()
+
+    let tenantName: string | null = null
+    if (meta.company_id) {
+      const { data: company } = await supabase.from('companies').select('name').eq('id', meta.company_id).single()
+      tenantName = company?.name ?? null
+    } else if (meta.vendor_id) {
+      const { data: vendor } = await supabase.from('vendors').select('name').eq('id', meta.vendor_id).single()
+      tenantName = vendor?.name ?? null
+    }
 
     return {
       id: data.user.id,
@@ -34,6 +45,8 @@ export const fetchSessionUser = createServerFn({ method: 'GET' }).handler(
       companyId: meta.company_id ?? null,
       vendorId: meta.vendor_id ?? null,
       fullName: profile?.full_name ?? '',
+      language: (profile?.language as 'da' | 'en' | undefined) ?? 'da',
+      tenantName,
     }
   },
 )
