@@ -13,6 +13,7 @@ export const Route = createFileRoute('/_app')({
 })
 
 const CHAT_ROLES = new Set(['admin', 'company_admin', 'vendor_admin'])
+const ORDERING_ROLES = new Set(['company_admin', 'employee', 'vendor_admin'])
 
 function AppLayout() {
   const { user } = Route.useRouteContext()
@@ -36,6 +37,14 @@ function AppLayout() {
             <Link to="/" className="text-neutral-600 hover:underline [&.active]:font-medium [&.active]:text-neutral-900">
               Home
             </Link>
+            {ORDERING_ROLES.has(user.role) && (
+              <Link
+                to="/ordering"
+                className="text-neutral-600 hover:underline [&.active]:font-medium [&.active]:text-neutral-900"
+              >
+                Ordering
+              </Link>
+            )}
             {canChat && (
               <Link
                 to="/chat"

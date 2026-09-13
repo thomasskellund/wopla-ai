@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppChatRouteImport } from './routes/_app/chat'
+import { Route as AppOrderingRouteImport } from './routes/_app/ordering'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -39,17 +40,24 @@ const AppChatRoute = AppChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOrderingRoute = AppOrderingRouteImport.update({
+  id: '/ordering',
+  path: '/ordering',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/chat': typeof AppChatRoute
+  '/ordering': typeof AppOrderingRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/chat': typeof AppChatRoute
+  '/ordering': typeof AppOrderingRoute
   '/': typeof AppIndexRoute
 }
 export interface FileRoutesById {
@@ -58,15 +66,22 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/_app/chat': typeof AppChatRoute
+  '/_app/ordering': typeof AppOrderingRoute
   '/_app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/unauthorized' | '/chat'
+  fullPaths: '/' | '/login' | '/unauthorized' | '/chat' | '/ordering'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/unauthorized' | '/chat' | '/'
+  to: '/login' | '/unauthorized' | '/chat' | '/ordering' | '/'
   id:
-    '__root__' | '/_app' | '/login' | '/unauthorized' | '/_app/chat' | '/_app/'
+    | '__root__'
+    | '/_app'
+    | '/login'
+    | '/unauthorized'
+    | '/_app/chat'
+    | '/_app/ordering'
+    | '/_app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -112,16 +127,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppChatRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/ordering': {
+      id: '/_app/ordering'
+      path: '/ordering'
+      fullPath: '/ordering'
+      preLoaderRoute: typeof AppOrderingRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
   AppChatRoute: typeof AppChatRoute
+  AppOrderingRoute: typeof AppOrderingRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppChatRoute: AppChatRoute,
+  AppOrderingRoute: AppOrderingRoute,
   AppIndexRoute: AppIndexRoute,
 }
 

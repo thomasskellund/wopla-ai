@@ -48,9 +48,12 @@ insert into public.vendors (id, name, address, city, zip, vat_number) values
   ('b0000000-0000-4000-8000-000000000001', 'Grøn Kantine', 'Vesterbrogade 10', 'København', '1620', 'DK11111111');
 
 -- ------------------------------------------------------------- companies
-insert into public.companies (id, name, address, city, zip, vat_number) values
-  ('c0000000-0000-4000-8000-000000000001', 'CompanyA', 'Amagertorv 1', 'København', '1160', 'DK22222222'),
-  ('c0000000-0000-4000-8000-000000000002', 'CompanyB', 'Åboulevarden 5', 'Aarhus', '8000', 'DK33333333');
+-- CompanyA is employee-managed (each employee picks their own lunch);
+-- CompanyB is admin-managed (its company_admin types head counts
+-- directly) — seeded so both ordering workflows are demoable out of the box.
+insert into public.companies (id, name, address, city, zip, vat_number, admin_managed_order) values
+  ('c0000000-0000-4000-8000-000000000001', 'CompanyA', 'Amagertorv 1', 'København', '1160', 'DK22222222', false),
+  ('c0000000-0000-4000-8000-000000000002', 'CompanyB', 'Åboulevarden 5', 'Aarhus', '8000', 'DK33333333', true);
 
 -- ---------------------------------------------------------------- users
 select pg_temp.seed_user('a0000000-0000-4000-8000-000000000001', 'admin@demo.wopla.dk', 'admin', 'Wopla Admin');
@@ -103,6 +106,60 @@ insert into public.chat_messages (room_id, sender_id, body, created_at) values
   ('e0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000011', 'Absolutely, I''ll add it from next week.', now() - interval '20 minutes');
 update public.chat_rooms set last_message_at = now() - interval '20 minutes'
 where id = 'e0000000-0000-4000-8000-000000000001';
+
+-- --------------------------------------------------------------- ordering
+-- Dish names match what we found live on legacy's own demo vendor
+-- ("Demo Vendor Kitchen") while researching the ordering domain.
+insert into public.dishes (id, vendor_id, name) values
+  ('d0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001', 'Lunch Buffet'),
+  ('d0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001', 'Salad Bar');
+
+-- Dates are relative to seed-execution time, not hardcoded — a fixed past
+-- date is exactly the trap that left legacy's own reference data stale
+-- (see the ordering-domain retro in memory). Both orders started 30 days
+-- ago and run open-ended.
+insert into public.orders (id, company_id, vendor_id, module_id, from_date, to_date, created_by) values
+  ('f0000000-0000-4000-8000-000000000001', 'c0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001', 1, current_date - 30, null, 'a0000000-0000-4000-8000-000000000001'),
+  ('f0000000-0000-4000-8000-000000000002', 'c0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001', 1, current_date - 30, null, 'a0000000-0000-4000-8000-000000000001');
+
+-- CompanyA (employee-managed): Emma and Erik each set a standing weekly
+-- choice; Erik skips Friday (no lunch that day) to show the "null means
+-- no lunch" case for real.
+insert into public.user_dish_preferences (order_id, profile_id, weekday, dish_id) values
+  ('f0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000101', 'mon', 'd0000000-0000-4000-8000-000000000001'),
+  ('f0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000101', 'tue', 'd0000000-0000-4000-8000-000000000001'),
+  ('f0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000101', 'wed', 'd0000000-0000-4000-8000-000000000002'),
+  ('f0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000101', 'thu', 'd0000000-0000-4000-8000-000000000001'),
+  ('f0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000101', 'fri', 'd0000000-0000-4000-8000-000000000002'),
+  ('f0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000102', 'mon', 'd0000000-0000-4000-8000-000000000002'),
+  ('f0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000102', 'tue', 'd0000000-0000-4000-8000-000000000001'),
+  ('f0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000102', 'wed', 'd0000000-0000-4000-8000-000000000001'),
+  ('f0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000102', 'thu', 'd0000000-0000-4000-8000-000000000002');
+select engine.recompute_standing_heads('f0000000-0000-4000-8000-000000000001', wd)
+from unnest(enum_range(null::public.weekday)) as wd;
+
+-- CompanyB (admin-managed): Casper (company_admin) typed these directly —
+-- no per-employee preference rows exist for this order at all.
+insert into public.order_dish_heads (order_id, dish_id, weekday, heads)
+select 'f0000000-0000-4000-8000-000000000002', d.id, wd, h.heads
+from (values
+  ('d0000000-0000-4000-8000-000000000001'::uuid, 'mon'::public.weekday, 15),
+  ('d0000000-0000-4000-8000-000000000001'::uuid, 'tue'::public.weekday, 15),
+  ('d0000000-0000-4000-8000-000000000001'::uuid, 'wed'::public.weekday, 12),
+  ('d0000000-0000-4000-8000-000000000001'::uuid, 'thu'::public.weekday, 15),
+  ('d0000000-0000-4000-8000-000000000001'::uuid, 'fri'::public.weekday, 10),
+  ('d0000000-0000-4000-8000-000000000002'::uuid, 'mon'::public.weekday, 5),
+  ('d0000000-0000-4000-8000-000000000002'::uuid, 'tue'::public.weekday, 5),
+  ('d0000000-0000-4000-8000-000000000002'::uuid, 'wed'::public.weekday, 5),
+  ('d0000000-0000-4000-8000-000000000002'::uuid, 'thu'::public.weekday, 5),
+  ('d0000000-0000-4000-8000-000000000002'::uuid, 'fri'::public.weekday, 5)
+) as h(dish_id, wd, heads)
+join public.dishes d on d.id = h.dish_id;
+
+-- Pre-materialize the next two weeks for both orders so the vendor/company
+-- views have real data the moment anyone logs in — no "no active order"
+-- empty state to greet a fresh reset with.
+select engine.roll_orders(14);
 
 -- give the recipients an unread badge to demo the inbox state
 insert into public.chat_room_members (room_id, profile_id, unread_count)

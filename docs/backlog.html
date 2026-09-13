@@ -190,8 +190,8 @@
     <h1>Follow-ups &amp; deferred work</h1>
     <p>Things deliberately deferred while building the rewrite domain by domain — not forgotten, just out of order. Check one off once it's actually addressed in a migration or spec update.</p>
     <div class="meta">
-      <span><b>4</b> open</span>
-      <span>Last logged <b>2026-09-12</b></span>
+      <span><b>8</b> open</span>
+      <span>Last logged <b>2026-09-13</b></span>
     </div>
   </div>
 
@@ -216,6 +216,107 @@
           <span class="tag accent">chat</span>
           <span class="tag">api.list_chat_rooms</span>
           <span class="tag warn">blocked on: orders domain</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2>Domain 3 — Ordering</h2>
+      <span class="count">7 items</span>
+    </div>
+    <div class="items">
+      <div class="item" data-id="ordering-other-modules">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">The other 8 order modules (Meeting, Fruit, Guest, Kiosk, Special, Bakery, Home, Coffee)</div>
+        <div class="rationale">
+          First pass ships Lunch only. The engine (standing order, daily materialization, cutoff
+          math) is designed generally enough that adding a module is a data/config change &mdash;
+          new <code>modules</code> row plus dishes &mdash; not a rearchitecture. Fruit additionally
+          needs its own Thursday-anchored grace-period variant, noted separately below.
+        </div>
+        <div class="tags">
+          <span class="tag accent">ordering</span>
+          <span class="tag">public.modules</span>
+        </div>
+      </div>
+      <div class="item" data-id="ordering-fruit-grace-variant">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Fruit's Thursday-anchored major-update grace variant</div>
+        <div class="rationale">
+          Legacy's major-update cutoff is Monday-anchored for Lunch but Thursday-anchored for
+          Fruit. <code>engine.can_make_major_update</code> only implements the Lunch anchor this
+          pass &mdash; needs a per-module anchor-weekday before Fruit can be added.
+        </div>
+        <div class="tags">
+          <span class="tag accent">ordering</span>
+          <span class="tag">engine.can_make_major_update</span>
+          <span class="tag warn">blocked on: Fruit module</span>
+        </div>
+      </div>
+      <div class="item" data-id="ordering-contracts">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Commercial contract terms (pricing, kickback %, delivery terms, switch-requests)</div>
+        <div class="rationale">
+          <code>public.orders</code> ships as a minimal company&ndash;vendor&ndash;module link with a
+          validity window and no commercial fields &mdash; deliberately, since pricing/kickback/
+          switch-request workflows are a distinct future contracts/billing domain, not part of the
+          ordering engine itself.
+        </div>
+        <div class="tags">
+          <span class="tag accent">ordering</span>
+          <span class="tag">public.orders</span>
+        </div>
+      </div>
+      <div class="item" data-id="ordering-ratings-reports">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Order ratings, print lists, bulk email reports</div>
+        <div class="rationale">
+          Present in legacy, not touched this pass &mdash; no schema exists for any of the three yet.
+        </div>
+        <div class="tags">
+          <span class="tag accent">ordering</span>
+        </div>
+      </div>
+      <div class="item" data-id="ordering-business-rules-ui">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Admin settings UI for grace periods / working days / holidays</div>
+        <div class="rationale">
+          <code>public.grace_periods</code>, <code>company_working_days</code>,
+          <code>public_holidays</code> and <code>company_holidays</code> all exist and are seeded
+          with sensible defaults, but there's no screen to edit them yet &mdash; admin would need
+          direct DB access to change a company's cutoff numbers today.
+        </div>
+        <div class="tags">
+          <span class="tag accent">ordering</span>
+          <span class="tag">public.grace_periods</span>
+        </div>
+      </div>
+      <div class="item" data-id="ordering-notifications">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Vendor daily-summary email, rating-request notifications</div>
+        <div class="rationale">
+          Legacy has no &ldquo;remember to order&rdquo; reminder to employees either, so nothing is
+          lost by deferring the vendor-side email too &mdash; parity, not a gap we're introducing.
+        </div>
+        <div class="tags">
+          <span class="tag accent">ordering</span>
+        </div>
+      </div>
+      <div class="item" data-id="ordering-offboarding-cancellation">
+        <button class="check" aria-label="Mark done"></button>
+        <div class="title">Employee offboarding/reassignment order-cancellation logic</div>
+        <div class="rationale">
+          Legacy force-cancels a departing/reassigned employee's future daily choices as part of
+          offboarding (with a real bug there we're not reproducing &mdash; a <code>||</code> that
+          should be <code>&amp;&amp;</code> wipes cancellation metadata off orders that are already
+          locked or cancelled). No offboarding flow exists yet in wopla-ai at all, so there's
+          nothing to hook this into this pass.
+        </div>
+        <div class="tags">
+          <span class="tag accent">ordering</span>
+          <span class="tag warn">blocked on: offboarding flow</span>
         </div>
       </div>
     </div>

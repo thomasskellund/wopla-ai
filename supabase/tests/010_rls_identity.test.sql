@@ -35,7 +35,7 @@ select is((select count(*)::int from public.profiles where company_id = 'c000000
 reset role;
 select pg_temp.as_user('a0000000-0000-4000-8000-000000000011', 'vendor_admin', null, 'b0000000-0000-4000-8000-000000000001');
 select is((select count(*)::int from public.vendors), 1, 'vendor_admin sees exactly own vendor');
-select is((select count(*)::int from public.companies), 0, 'vendor cannot see any company yet (no orders relationship exists)');
+select is((select count(*)::int from public.companies), 2, 'vendor sees the companies it currently has a standing order with (ordering domain)');
 select is((select count(*)::int from public.profiles where company_id is not null), 0, 'vendor cannot see company employees');
 
 -- employee of company 1
