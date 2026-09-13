@@ -18,4 +18,12 @@ Each domain gets its own migration(s), RPCs, and UI slice before moving to the n
 
 ## Status
 
-Just initialized. No domain has been started yet.
+Five domains built, tested, and deployed to devserver-1 (`https://wopla-ai.heyrobot.com`):
+
+1. **Auth & tenancy** — Supabase Auth, `profiles`/`companies`/`vendors`, JWT claims synced via `app.sync_profile_claims()`.
+2. **Chat** — per-company/vendor rooms, realtime messaging.
+3. **Ordering** — Lunch module only: daily choices, weekly preferences, grace-period/cutoff engine.
+4. **Invoicing** — billing rates, invoice generation/submission/rejection, credit notes.
+5. **Virksomheder** — company/vendor/employee management; the project's first Edge Function (`create-employee`); working days, holidays, grace-period settings.
+
+Each domain's spec lives under `docs/specs/`, researched from `../wopla-combined` only (never from `../wopla`). See `docs/backlog.html` for deferred/out-of-scope items.
